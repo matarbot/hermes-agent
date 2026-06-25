@@ -1,0 +1,41 @@
+{
+  "name": "@hermes/mobile",
+  "productName": "Hermes",
+  "private": true,
+  "version": "0.17.0",
+  "description": "Mobile shell for Hermes Agent.",
+  "author": "Nous Research",
+  "type": "module",
+  "main": "src/bridge.ts",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5175",
+    "build": "vite build && node scripts/post-build.cjs",
+    "sync": "cap sync",
+    "android": "npm run build && cap sync android",
+    "ios": "npm run build && cap sync ios",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/preferences": "^7.0.0",
+    "capacitor-secure-storage-plugin": "^0.13.0",
+    "@capacitor/local-notifications": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@hermes/shared": "file:../shared"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
+  },
+  "capacitor": {
+    "appId": "com.nousresearch.hermes.mobile",
+    "appName": "Hermes",
+    "webDir": "www"
+  }
+}
