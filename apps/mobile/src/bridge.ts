@@ -27,11 +27,13 @@ import { LocalNotifications } from '@capacitor/local-notifications'
 interface MobileConnectionConfig {
   mode: 'local' | 'remote'
   remoteUrl: string
-  remoteAuthMode: 'oauth' | 'token'
+  remoteAuthMode: 'oauth' | 'token' | 'basic'
   remoteToken: string | null
   remoteTokenSet: boolean
   remoteOauthConnected: boolean
   remoteTokenPreview: string | null
+  remoteUsername: string | null
+  remotePassword: string | null
   envOverride: boolean
   profile: string | null
 }
@@ -65,8 +67,10 @@ function normalizeRemoteBaseUrl(rawUrl: string): string {
   return parsed.toString().replace(/\/+$/, '')
 }
 
-function normAuthMode(mode: string | undefined): 'oauth' | 'token' {
-  return mode === 'oauth' ? 'oauth' : 'token'
+function normAuthMode(mode: string | undefined): 'oauth' | 'token' | 'basic' {
+  if (mode === 'oauth') return 'oauth'
+  if (mode === 'basic') return 'basic'
+  return 'token'
 }
 
 function tokenPreview(value: string | null): string | null {
@@ -88,6 +92,13 @@ function buildGatewayWsUrlWithTicket(baseUrl: string, ticket: string): string {
   return `${wsScheme}://${parsed.host}${prefix}/api/ws?ticket=${encodeURIComponent(ticket)}`
 }
 
+function buildGatewayWsUrlBasic(baseUrl: string, username: string, password: string): string {
+  const parsed = new URL(baseUrl)
+  const wsScheme = parsed.protocol === 'https:' ? 'wss' : 'ws'
+  const prefix = parsed.pathname.replace(/\/+$/, '')
+  return `${wsScheme}://${parsed.host}${prefix}/api/ws?user=${encodeURIComponent(username)}&pass=${encodeURIComponent(password)}`
+}
+
 function resolveTimeoutMs(timeoutMs: number | undefined, defaultMs: number): number {
   if (typeof timeoutMs === 'number' && timeoutMs > 0) return timeoutMs
   return defaultMs
@@ -106,11 +117,13 @@ async function loadConnectionConfig(): Promise<MobileConnectionConfig> {
   const defaultConfig: MobileConnectionConfig = {
     mode: 'remote',
     remoteUrl: 'https://lab.synth.kitchen',
-    remoteAuthMode: 'token',
+    remoteAuthMode: 'basic',
     remoteToken: null,
     remoteTokenSet: false,
     remoteOauthConnected: false,
     remoteTokenPreview: null,
+    remoteUsername: null,
+    remotePassword: null,
     envOverride: false,
     profile: null,
   }
@@ -190,8 +203,12 @@ async function proxyApi(
       return parseJsonResponse(response)
     }
 
-    // Token mode: send the session token as a header.
-    if (config.remoteToken) {
+    if (config.remoteAuthMode === 'basic' && config.remoteUsername && config.remotePassword) {
+      // Basic auth: encode username:password as base64
+      const credentials = btoa(`${config.remoteUsername}:${config.remotePassword}`)
+      headers['Authorization'] = `Basic ${credentials}`
+    } else if (config.remoteToken) {
+      // Token mode: send the session token as a header.
       headers['X-Hermes-Session-Token'] = config.remoteToken
     }
 
@@ -611,6 +628,8 @@ function createBridge(): typeof window.hermesDesktop {
       // For OAuth, we'll mint a fresh ticket at connect time.
       // Return a placeholder; the caller (resolveGatewayWsUrl) will mint.
       wsUrl = ''
+    } else if (config.remoteAuthMode === 'basic' && config.remoteUsername && config.remotePassword) {
+      wsUrl = buildGatewayWsUrlBasic(config.remoteUrl, config.remoteUsername, config.remotePassword)
     } else if (config.remoteToken) {
       wsUrl = buildGatewayWsUrl(config.remoteUrl, config.remoteToken)
     }

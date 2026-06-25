@@ -11,9 +11,6 @@ const config: CapacitorConfig = {
     cleartext: true,
   },
   plugins: {
-    SecureStorage: {
-      supportedBiometries: ['FaceID', 'TouchID'],
-    },
     LocalNotifications: {
       smallIcon: 'res/icon.png',
       iconColor: '#3b82f6',
