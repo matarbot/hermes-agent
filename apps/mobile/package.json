@@ -18,16 +18,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/preferences": "^7.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
     "capacitor-secure-storage-plugin": "^0.13.0",
-    "@capacitor/local-notifications": "^7.0.0",
-    "@capacitor/android": "^7.0.0",
-    "@capacitor/ios": "^7.0.0",
+    "@capacitor/local-notifications": "^8.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@hermes/shared": "file:../shared"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.0",
+    "@capacitor/cli": "^8.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.3",
