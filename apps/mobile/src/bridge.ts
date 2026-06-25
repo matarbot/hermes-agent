@@ -19,7 +19,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences'
-import { SecureStorage } from 'capacitor-secure-storage-plugin'
+import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin'
 import { LocalNotifications } from '@capacitor/local-notifications'
 
 // ── Type aliases (mirror from global.d.ts so mobile doesn't need the file) ──
@@ -130,7 +130,7 @@ async function loadConnectionConfig(): Promise<MobileConnectionConfig> {
 
   // Check for a persisted token in SecureStorage.
   try {
-    const stored = await SecureStorage.get({ key: STORAGE_KEY_TOKEN })
+    const stored = await SecureStoragePlugin.get({ key: STORAGE_KEY_TOKEN })
     if (stored.value) {
       defaultConfig.remoteToken = stored.value
       defaultConfig.remoteTokenSet = true
@@ -146,12 +146,12 @@ async function saveConnectionConfig(config: MobileConnectionConfig): Promise<voi
 
   // Persist token separately in SecureStorage.
   if (config.remoteToken) {
-    await SecureStorage.set({ key: STORAGE_KEY_TOKEN, value: config.remoteToken }).catch(() => {
+    await SecureStoragePlugin.set({ key: STORAGE_KEY_TOKEN, value: config.remoteToken }).catch(() => {
       /* SecureStorage unavailable — non-critical */
     })
   } else {
     // Clear token when mode changes to local or token is unset.
-    await SecureStorage.remove({ key: STORAGE_KEY_TOKEN }).catch(() => {
+    await SecureStoragePlugin.remove({ key: STORAGE_KEY_TOKEN }).catch(() => {
       /* SecureStorage unavailable — non-critical */
     })
   }
